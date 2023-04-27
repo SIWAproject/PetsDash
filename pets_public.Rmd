@@ -1,0 +1,99 @@
+---
+title: "TESTING"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    social: menu
+runtime: shiny
+always_allow_html: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Including Plots
+
+```{r pressure, echo=FALSE}
+library(ggplot2)
+library(flexdashboard)
+
+
+ply1 <- plot_ly(
+  domain = list(x = c(0, 1), y = c(0, 1)),
+  value = 60,
+  type = "indicator",
+  mode = "gauge",
+  gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "orange"))) 
+
+ply2 <- plot_ly(
+  domain = list(x = c(0, 1), y = c(0, 1)),
+  value = 10,
+  type = "indicator",
+  mode = "gauge",
+  gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "orange"))) 
+
+#renderPlotly(ply)
+plot(pressure)
+
+```
+
+
+Row {data-height=200}
+-----------------------------------------------------------------------
+```{r , echo=FALSE}
+actionButton("test", "TEST")
+library(plotly)
+
+
+# ggplot(pressure, aes(x=temperature, y=pressure)) +
+    #   geom_point()
+output$plot1 <- renderPlotly({
+      ply1
+  })
+
+output$plot2 <- renderPlotly({
+      ply2
+  })
+
+# g <- gauge(
+#   10,
+#   min = 0,
+#   max = 100,
+#   symbol = '%'
+# )
+# class(g)
+# c = flexdashboard:: renderGauge({
+#   gauge(10, min = 0, max = 100, symbol = '%', sectors=s1)
+# })
+
+observeEvent(input$test, {
+  showModal(
+    modalDialog(
+      withTags({
+        fluidRow(
+          column(
+            4,
+            "Bacteria",
+            renderText("orem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat")
+          ),
+          column(4, "No Ganoderma", align="center",plotlyOutput("plot1")),
+          column(4, "Ganoderma", align="center",plotlyOutput("plot2")))
+        }),
+      title = "Settings",
+      #footer = modalFooterUI("inputs"),
+      size = "l",
+      easyClose = FALSE,
+      fade = TRUE
+    ) )})
+
+```
+
+  
