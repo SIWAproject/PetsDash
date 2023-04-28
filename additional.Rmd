@@ -1,0 +1,331 @@
+---
+title: "Siwa PETS"
+output:
+  pdf_document:
+    # pandoc_args: [
+    #   "-V", "classoption=twocolumn"
+    # ]
+    latex_engine: xelatex
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    social: menu
+    css: estilo.css
+    logo: "Wsiwa.png"
+always_allow_html: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r , echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+library(phyloseq)
+library(ggplot2)
+library(shinydashboard)
+library(devtools)
+library(flexdashboard)
+library(kableExtra)
+library(microbiome)
+library(plyr)
+library(plotly)
+library(stringr)
+library(microbiomeutilities)
+library(microViz)
+library(gtools)
+library(ggpubr)
+setwd("/Users/dvarelat/Documents/SIWA/Pets_flex")
+source("functions.R")
+input_dir = "Input_data/"
+ODLEPobj <- readRDS(paste0(input_dir, "PhyloseqObject_pets.rds"))
+df_c <- read.csv(paste0(input_dir, "bench_cecum.csv"))
+
+
+levels = c("control", "gano5", "gano10", "gano15")
+sample_data(ODLEPobj)$Group <- factor(sample_data(ODLEPobj)$Group, levels=levels)
+sample_data(ODLEPobj)$Timepoint <- factor(sample_data(ODLEPobj)$Timepoint,
+                                          levels=c("Before", "After"))
+sample_data(ODLEPobj)$SampleDog <-
+  paste0(
+    sample_data(ODLEPobj)$DOG,
+    "-",
+    sample_data(ODLEPobj)$SampleID %>% stringr::str_remove("F-M")
+  )
+sample_data(ODLEPobj)$DogGroup <-
+  paste0(
+    sample_data(ODLEPobj)$DOG,
+    "-",
+    sample_data(ODLEPobj)$Group
+  )
+phylo_before <- subset_samples(ODLEPobj, Timepoint ==  "Before")
+phylo_after <- subset_samples(ODLEPobj, Timepoint ==  "After")
+# 
+phylo_before_rel <- microbiome::transform(phylo_before, "compositional")
+phylo_after_rel <- microbiome::transform(phylo_after, "compositional")
+
+relative <- microbiome::transform(ODLEPobj, "compositional")
+p_times <- list(After=phylo_after, 
+                Before=phylo_before)
+phyloseq_relative <- relative
+
+genus_to_keep <- function(phyloseq_relative, N = 12) {
+  ps.com.gen <-microbiomeutilities::aggregate_top_taxa2(phyloseq_relative, level = "Genus", top= N)
+  keep_genus <-
+    as.list(as.data.frame(phyloseq::tax_table(ps.com.gen))$Genus)
+  keep_genus <- keep_genus[keep_genus != "UNKNOWN"]
+  keep_genus <- keep_genus[keep_genus != "Other"]
+  return(keep_genus)
+}
+grouped <- aggregate_taxa_siwa(phyloseq_relative, "Genus")
+melted <- psmelt(otu_table(grouped, taxa_are_rows = TRUE))
+metadata <- sample_data(phyloseq_relative)
+melted$SampleID <- melted$Sample
+melted <- dplyr::left_join(melted, metadata, by="SampleID")
+melted$SampleDog <- as.factor(melted$SampleDog)
+melted$DogGroup <- as.factor(melted$DogGroup)
+
+keep_genus_after <- genus_to_keep(phylo_after_rel)
+keep_genus_before <- genus_to_keep(phylo_before_rel)
+
+dict_keep_genus <- list(After=keep_genus_after,  Before=keep_genus_before)
+```
+
+Project description {data-icon="fa-table"}
+===================================== 
+
+<!-- Row --> {data-height=600}
+-------------------------------------
+
+### {data-width=400}
+
+```{r picture, echo=FALSE}
+knitr::include_graphics("perro.jpg")
+
+cvi_colours = list(
+  cvi_siwa = c("#03343a", "#4e8e74","#f99b35",  "#e5c217",
+               "#075b44", "#f9b870", "#f7e76d",
+                  "#017fb1", "#5cb08e" , "#fcd8b6", "#fcf5cd", "#ABF4D4",
+               "#8CDBF4","#F7927F"),
+
+  alpha_colors = c( "#075b44",  "#017fb1"),
+  bad_good_stool = c( "#f9b870","#f9b870", "#5cb08e"),
+  groups_pastel = c( ),
+  groups=c("#4e8e74", "#035060", "#f99b35", "#BC8808")
+)
+
+cvi_palettes = function(name, n, all_palettes = cvi_colours, type = c("discrete", "continuous")) {
+  palette = all_palettes[[name]]
+  if (missing(n)) {
+    n = length(palette)
+  }
+  type = match.arg(type)
+  out = switch(type,continuous = grDevices::colorRampPalette(palette)(n),discrete = palette[1:n]
+  )
+  structure(out, name = name, class = "palette")
+}
+
+scale_color_cvi_d = function(name) {
+  ggplot2::scale_colour_manual(values = cvi_palettes(name, type = "discrete"))
+}
+scale_fill_cvi_d = function(name) {
+  ggplot2::scale_fill_manual(values = cvi_palettes(name,type = "discrete"))
+}
+
+```
+
+### {data-width=300}
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+
+Microbiome composition {data-icon="fa-table"}
+===================================== 
+
+<!-- Row --> {data-height=80}
+-------------------------------------
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+
+
+<!-- Row --> {data-height=50}
+-------------------------------------
+
+<!-- Row --> {data-height=600}
+-------------------------------------
+
+### Beta diversity: timepoint after
+
+```{r beta, include=TRUE, eval=TRUE, echo=FALSE}
+out.bray <-
+    ordinate(
+      phylo_after, method = "MDS", 
+      distance = "bray")
+p <- plot_ordination(
+    phylo_after,
+    out.bray,
+    color = "Group",
+    axes = c(1, 2),
+    justDF = FALSE
+  )
+df <- p$data
+df$Group <- as.factor(df$Group)
+plot <- ggplot(df, aes(
+    x = Axis.1,
+    y = Axis.2,
+    color = Group,
+    text = paste("Dog:", DOG, "\n", DogGroup) )) +
+    geom_point(size=3) +xlab(p$labels$x) + ylab(p$labels$y) + scale_color_cvi_d("groups")
+
+plot
+```
+
+Microbiome composition 
+===================================== 
+
+<!-- Row --> {data-height=600}
+-------------------------------------
+
+### Taxonomic composition by animals and groups: timepoint after
+
+```{r , echo=FALSE}
+melted$label <-as.character(if_else(melted$OTU %in% keep_genus_after, melted$OTU, "Others"))
+df <- melted[, c("label", "Abundance", "DOG", "Timepoint", "Group")]
+df <- df[df$Timepoint == "After",]
+df_agg <-aggregate(df$Abundance,
+          by = list(df$label, df$DOG,  df$Group),FUN = sum)
+colnames(df_agg) <-c("Genus", "DOG","Group", "Abundance")
+
+ggplot(df_agg,
+       aes(x = DOG,
+           y = Abundance,
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") + facet_wrap( ~Group, scales = 'free') + scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+```
+
+
+<!-- Row --> {data-height=600}
+-------------------------------------
+
+### Taxonomic by groups: timepoint after
+
+```{r , echo=FALSE}
+ggplot(df_agg,
+       aes(x = Group,
+           y = Abundance,
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+<!-- Row --> {data-height=600}
+-------------------------------------
+
+### Taxonomic by timepoint 
+
+```{r , echo=FALSE}
+melted$label <-as.character(if_else(melted$OTU %in% keep_genus_after, melted$OTU, "Others"))
+df <- melted[, c("label", "Abundance","Timepoint", "Group")]
+df_agg <-aggregate(df$Abundance,
+          by = list(df$label, df$Timepoint,  df$Group),FUN = sum)
+colnames(df_agg) <-c("Genus", "Timepoint","Group", "Abundance")
+ggplot(df_agg,
+       aes(x = Timepoint,
+           y = Abundance,
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1)) + facet_wrap( ~Group, scales = 'free')
+
+```
+
+
+Ganoderma vs No Ganoderma 
+===================================== 
+
+<!-- Row --> {data-height=80}
+-------------------------------------
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+
+<!-- Row --> {data-height=50}
+-------------------------------------
+
+<!-- Row --> {data-height=300}
+-------------------------------------
+
+```{r , echo=FALSE, include=TRUE}
+df <- data.frame(
+  class = c("Ganoderma","Ganoderma","Ganoderma", "No-Ganoderma","No-Ganoderma"),
+  names=c("bact1", "bact2","bact3","bact4","bact5"),
+  len = c(4, 3.2, 2.2, 2.5, 3)
+  )
+df$class <- as.factor(df$class)
+pl <- ggplot(df, aes(x=names, y = len, fill = class)) +
+  geom_bar(stat = "identity") + xlab("")+ ylab("LDA Score")+
+  coord_flip() + scale_fill_cvi_d("alpha_colors")
+pl
+```
+
+
+<!-- Row --> {data-height=150}
+-------------------------------------
+```{r , echo=FALSE, include=TRUE, warning=FALSE}
+fig1 <- plot_ly(
+  domain = list(x = c(0, 0.45), y = c(0, 1)),
+  value = 60,
+  type = "indicator",title = list(text = "No Ganoderma"), 
+  mode = "gauge",gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "#f9b870"))) 
+fig1 <- fig1 %>% layout(margin = list(l=20,r=30))
+
+fig2 <- plot_ly(
+  domain = list(x = c(0.55, 1), y = c(0, 1)),
+  value = 10,
+  type = "indicator",
+  mode = "gauge", title = list(text = "Ganoderma"), 
+  gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "#f9b870"))) 
+fig2 <- fig2 %>% layout(margin = list(l=20,r=30))
+
+subplot(fig1, fig2)
+
+
+```
+
+
+<!-- Row --> {data-height=150}
+-------------------------------------
+```{r , echo=FALSE, include=TRUE, warning=FALSE}
+fig1 <- plot_ly(
+  domain = list(x = c(0, 0.45), y = c(0, 1)),
+  value = 20,
+  type = "indicator",title = list(text = "No Ganoderma"), 
+  mode = "gauge",gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "#5cb08e"))) 
+fig1 <- fig1 %>% layout(margin = list(l=20,r=30))
+
+fig2 <- plot_ly(
+  domain = list(x = c(0.55, 1), y = c(0, 1)),
+  value = 70,
+  type = "indicator",
+  mode = "gauge", 
+  title = list(text = "Ganoderma"), 
+  gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "#5cb08e"))) 
+
+fig2 <- fig2 %>% layout(margin = list(l=20,r=30))
+
+subplot(fig1, fig2)
+```
+
+```{r , echo=FALSE, include=FALSE}
+
+```
+
+
+```{r , echo=FALSE, include=FALSE}
+# library(rmarkdown)
+# rmarkdown::render("/Users/dvarelat/Documents/SIWA/Pets_flex/pets_public.Rmd", output_format = "pdf_document")
+# install.packages('tinytex')
+# tinytex::install_tinytex()
+#webshot::install_phantomjs()
+```
+
+
