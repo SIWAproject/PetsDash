@@ -160,7 +160,6 @@ scale_fill_cvi_d = function(name) {
 Ganoderma lucidum (Reishi) is a fungus rich in 𝝱-glucans and triterpenoids called ganoderic acids.  Both 𝝱-glucans and ganoderic acids have shown immunoprotective activity in a variety of animal models, including dogs. The purpose of this study was to investigate whether a ganoderma dietary supplement also impacted the composition of the microbiome in dogs receiving varying doses of the supplement.  Altea Reishi™ was provided at 4 dosage levels for 28 days, from 0 to 15 mg/kg of body weight, and the resulting changes in microbiome composition were evaluated with the use of 16S amplicon sequencing.  
 
 
-
 Microbiome composition {data-icon="fa-table"}
 ===================================== 
 
@@ -168,8 +167,9 @@ Row {data-height=80}
 -----------------------------------------------------------------------
 `r FormatText("The microbiome is a complex community that can change in a variety of ways.  Identifying broad shifts in composition requires methods for evaluating the entirety of the data at the same time.  In principal component analysis (PCA), the sum total of all sequence information for each sample is represented as a single point in a 2 or 3-dimensional space, and samples that cluster together can be seen as more similar in their composition than samples that are far apart","Generic")`
 
-Row {data-height=50}
+Row {data-height=30}
 -----------------------------------------------------------------------
+
 
 Row {data-height=600}
 -----------------------------------------------------------------------
@@ -197,15 +197,15 @@ plot <- ggplot(df, aes(
     text = paste("Dog:", DOG, "\n", DogGroup) )) +
     geom_point(size=3) +xlab(p$labels$x) + ylab(p$labels$y) + scale_color_cvi_d("groups")
 
-ggplotly(plot)
+ggplotly(plot,  height = 500)
 ```
 
-Row {data-height=500}
+Row {data-height=600}
 -----------------------------------------------------------------------
 
 ### Top 12 genera from all animals: timepoint after.{data-width=650}
 
-```{r , echo=FALSE}
+```{r , echo=FALSE, fig.width=20, fig.height=10}
 melted$label <-as.character(if_else(melted$OTU %in% keep_genus_after, melted$OTU, "Others"))
 df <- melted[, c("label", "Abundance", "DOG", "Timepoint", "Group")]
 df <- df[df$Timepoint == "After",]
@@ -216,7 +216,7 @@ colnames(df_agg) <-c("Genus", "DOG","Group", "Abundance")
 ggplot(df_agg,
        aes(x = DOG,
            y = Abundance,
-           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") + facet_wrap( ~Group, scales = 'free') + scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") + facet_wrap( ~Group, scales = 'free', nrow=1,ncol=4) + scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme(strip.text.x = element_text(size = 20), text = element_text(size=15))
 
 ```
 
@@ -241,11 +241,11 @@ Row {data-height=600}
 
 ### Taxonomic composition at the genus level. 
 
-```{r , echo=FALSE}
+```{r , echo=FALSE, fig.width=20, fig.height=10}
 ggplot(df_agg,
        aes(x = Group,
            y = Abundance,
-           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1), text = element_text(size=20))
 ```
 
 Row {data-height=50}
@@ -263,7 +263,7 @@ Row {data-height=600}
 
 ### Taxonomic composition at the genus level.
 
-```{r , echo=FALSE, fig.width=10, fig.height=12}
+```{r , echo=FALSE, fig.width=20, fig.height=10}
 melted$label <-as.character(if_else(melted$OTU %in% keep_genus_after, melted$OTU, "Others"))
 df <- melted[, c("label", "Abundance","Timepoint", "Group")]
 df_agg <-aggregate(df$Abundance,
@@ -272,7 +272,7 @@ colnames(df_agg) <-c("Genus", "Timepoint","Group", "Abundance")
 ggplot(df_agg,
        aes(x = Timepoint,
            y = Abundance,
-           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1)) + facet_wrap( ~Group, scales = 'free', nrow=1,ncol=4)
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1)) + facet_wrap( ~Group, scales = 'free', nrow=1,ncol=4) + theme(strip.text.x = element_text(size = 20), text = element_text(size=15))
 
 ```
 
@@ -295,22 +295,26 @@ Row {data-height=600}
 ### Significant features when comparing Ganoderma-treated animals and controls.
 
 ```{r , echo=FALSE, include=TRUE}
+bacterias <- c("Lactobacillus", "Megasphaera","Prevotella","Turicibacter","Peptostreptococcaceae-Unknown")
 df <- data.frame(
   class = c("Ganoderma","Ganoderma","Ganoderma", "No-Ganoderma","No-Ganoderma"),
-  names=c("bact1", "bact2","bact3","bact4","bact5"),
-  len = c(4, 3.2, 2.2, 2.5, 3)
+  names=bacterias,
+  len = c(4, 2.2, 2, 2.5, 3)
   )
 df$class <- as.factor(df$class)
+df$names <-factor(df$names,levels = c("Lactobacillus", "Megasphaera","Prevotella","Peptostreptococcaceae-Unknown","Turicibacter"))
+
 pl <- ggplot(df, aes(x=names, y = len, fill = class)) +
   geom_bar(stat = "identity") + xlab("")+ ylab("LDA Score")+
   coord_flip() + scale_fill_cvi_d("alpha_colors")
-pl
+
+ggplotly(pl,  height = 500)
 ```
 
 Row {data-height=50}
 -----------------------------------------------------------------------
 
-Row {data-height=500}
+Row {data-height=600}
 -----------------------------------------------------------------------
 
 ### Relative abundance without and with Ganoderma
@@ -319,7 +323,7 @@ Row {data-height=500}
 
 fig1 <- plot_ly(
   domain = list(x = c(0, 0.45), y = c(0.5, 1)),
-  value = 60,
+  value = 10,
   type = "indicator",
   #title = list(text = "No Ganoderma"), 
   mode = "gauge",gauge = list(
@@ -329,7 +333,7 @@ fig1 <- fig1 %>% layout(margin = list(l=20,r=30))
 
 fig2 <- plot_ly(
   domain = list(x = c(0.55, 1), y = c(0.5, 1)),
-  value = 10,
+  value = 40,
   type = "indicator",
   mode = "gauge", 
   #title = list(text = "Ganoderma"), 
@@ -340,7 +344,7 @@ fig2 <- fig2 %>% layout(margin = list(l=20,r=30))
 
 fig3 <- plot_ly(
   domain = list(x = c(0, 0.45), y = c(0, 0.5)),
-  value = 20,
+  value = 15,
   type = "indicator",
   #title = list(text = "No Ganoderma"), 
   mode = "gauge",gauge = list(
@@ -350,7 +354,7 @@ fig3 <- fig3 %>% layout(margin = list(l=20,r=30))
 
 fig4 <- plot_ly(
   domain = list(x = c(0.55, 1), y = c(0, 0.5)),
-  value = 70,
+  value = 2,
   type = "indicator",
   mode = "gauge", 
   #title = list(text = "Ganoderma"),
@@ -405,7 +409,7 @@ annotations = list(
   list( 
     x = 0.5,  
     y = 0.9,  
-    text = "Bacteria 1",  
+    text = "Lactobacillus",  
     xref = "paper",  
     yref = "paper",  
     xanchor = "center",  
@@ -415,7 +419,7 @@ annotations = list(
   list( 
     x = 0.5,  
     y = 0.4,  
-    text = "Bacteria 2",  
+    text = "Turicibacter",  
     xref = "paper",  
     yref = "paper",  
     xanchor = "center",  
@@ -428,8 +432,7 @@ fig <- fig %>%layout(annotations = annotations)
 fig
 ```
 
-![gauges](gauges.png){#id .class width=90% height=50%}
-
+![](gauges.png){#id .class width=90% height=40%}
 
 Additional analyses {data-icon="fa-table"}
 ===================================== 
@@ -472,7 +475,7 @@ Row {data-height=30}
 -----------------------------------------------------------------------
 
 
-**Correlating experimental outcomes with traits of interest.**
+**Correlating experimental outcomes with traits of interest**
 
 
 Row {data-height=300}
@@ -503,15 +506,18 @@ Row {data-height=50}
 Row {data-height=30}
 -----------------------------------------------------------------------
 
-**Benchmarking SIWA Microbial Health Score 1 against the broader community**
+**Comparing with the population**
 
-Row {data-height=500}
+Row {data-height=600}
 -----------------------------------------------------------------------
 
-```{r plot1,warning=FALSE, echo=FALSE, results = F}
+### Benchmarking SIWA Microbial Health Score 1 against the broader community
+
+
+```{r plot1, warning=FALSE, echo=FALSE}
 cs = list(list(0, "#03343a"), list(1, "#f7e76d"))
 df_c$quant <- gtools::quantcut(abs(df_c$ratio1LOG), 10, label = FALSE)
-plot_ly(data=df_c) %>%
+p <- plot_ly(data=df_c) %>%
   add_trace(x = ~ratio1LOG, y= 0.5, type = "box", boxpoints = "none",showlegend=FALSE,
             orientation='h', fillcolor="#035060", 
             marker = list(symbol = "square-dot", color="#035060"),
@@ -535,13 +541,8 @@ plot_ly(data=df_c) %>%
          legend =  list(orientation = "h",   # show entries horizontally
                      xanchor = "center",  # use center of legend as anchor
                      x = 0.5, y = 1))
-
+ggplotly(p, height=400)
 ```
-
-<div class = 'center'>
-```{r plot1, echo = F}
-```
-</div>
 
 
 Row {data-height=50}
@@ -558,7 +559,7 @@ Row {data-height=500}
 
 ### {data-width=300}
 
-```{r, include=TRUE, warning=FALSE}
+```{r, include=TRUE, warning=FALSE, echo=FALSE}
 knitr::include_graphics("poop.jpeg")
 ```
 
@@ -571,7 +572,7 @@ plot_popo <- readRDS(file=paste0(input_dir, "plot_ploop.rds"))
 plot_popo <- plot_popo + scale_color_cvi_d("bad_good_stool") +
   xlab("Stool Type") + ylab("SIWA Microbial Health Score 1") + theme_light()
 
-plot_popo
+ggplotly(plot_popo, height=400)
 
 ```
 
