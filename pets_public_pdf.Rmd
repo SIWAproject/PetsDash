@@ -4,6 +4,8 @@ output:
   pdf_document:
     latex_engine: xelatex
     fig_caption: false
+  classoption: twocolumn
+
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
@@ -90,10 +92,9 @@ dict_keep_genus <- list(After=keep_genus_after,  Before=keep_genus_before)
 ```
 
 
-![perro](perro.jpg){#id .class width=50% height=80% position="center"}
-
-```{r picture, echo=FALSE, include=FALSE}
-#knitr::include_graphics("perro.jpg")
+```{r picture, echo=FALSE, include=TRUE, fig.align="center", out.height="60%", out.width = "90%"}
+#![perro](perro.jpg){#center .class width=50% height=80%}
+knitr::include_graphics("perro.jpg")
 
 cvi_colours = list(
   cvi_siwa = c("#03343a", "#4e8e74","#f99b35",  "#e5c217",
@@ -128,13 +129,16 @@ scale_fill_cvi_d = function(name) {
 ```
 
 
-Ganoderma Project {data-icon="fa-table"}
+Ganoderma lucidum as a modulator of the canine gut microbiome
 ===================================== 
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. 
+Ganoderma lucidum (Reishi) is a fungus rich in Beta-glucans and triterpenoids called ganoderic acids.  Both Beta-glucans and ganoderic acids have shown immunoprotective activity in a variety of animal models, including dogs. The purpose of this study was to investigate whether a ganoderma dietary supplement also impacted the composition of the microbiome in dogs receiving varying doses of the supplement.  Altea Reishi™ was provided at 4 dosage levels for 28 days, from 0 to 15 mg/kg of body weight, and the resulting changes in microbiome composition were evaluated with the use of 16S amplicon sequencing.  
 
 
+<!-- Row --> 
+-------------------------------------
 
+\newpage
 
 Microbiome composition {data-icon="fa-table"}
 ===================================== 
@@ -142,12 +146,12 @@ Microbiome composition {data-icon="fa-table"}
 <!-- Row --> 
 -------------------------------------
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+The microbiome is a complex community that can change in a variety of ways.  Identifying broad shifts in composition requires methods for evaluating the entirety of the data at the same time.  In principal component analysis (PCA), the sum total of all sequence information for each sample is represented as a single point in a 2 or 3-dimensional space, and samples that cluster together can be seen as more similar in their composition than samples that are far apart
 
 <!-- Row --> 
 -------------------------------------
 
-### Beta diversity: timepoint after
+### PCA of fecal samples from dogs receiving 4 levels of Ganoderma (0, 5 mg/kg, 10 mg/kg, 15 mg/kg)
 
 ```{r beta, include=TRUE, eval=TRUE, echo=FALSE}
 out.bray <-
@@ -173,15 +177,24 @@ plot <- ggplot(df, aes(
 plot
 ```
 
+
+\newpage
+
+
 Taxonomic composition 
 ===================================== 
 
 <!-- Row --> 
 -------------------------------------
 
-### Taxonomic composition by animals and groups: timepoint after
+Taxonomic profiling of individuals and groups can add context to population-level analyses like PCA, revealing microbial trends based on treatment, age, or other variables of interest.
 
-```{r , echo=FALSE}
+<!-- Row --> 
+-------------------------------------
+
+### Top 12 genera from all animals.: timepoint after
+
+```{r , echo=FALSE, out.height="70%", out.width = "90%"}
 melted$label <-as.character(if_else(melted$OTU %in% keep_genus_after, melted$OTU, "Others"))
 df <- melted[, c("label", "Abundance", "DOG", "Timepoint", "Group")]
 df <- df[df$Timepoint == "After",]
@@ -198,17 +211,17 @@ ggplot(df_agg,
 
 
 
-### Taxonomic by groups: timepoint after
+### By groups within the same timepoint:
 
 ```{r , echo=FALSE}
 ggplot(df_agg,
        aes(x = Group,
            y = Abundance,
-           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1), text = element_text(size=15))
 ```
 
 
-### Taxonomic by timepoint 
+### By timepoint within the same group:
 
 ```{r , echo=FALSE, fig.width=10, fig.height=12}
 melted$label <-as.character(if_else(melted$OTU %in% keep_genus_after, melted$OTU, "Others"))
@@ -219,159 +232,123 @@ colnames(df_agg) <-c("Genus", "Timepoint","Group", "Abundance")
 ggplot(df_agg,
        aes(x = Timepoint,
            y = Abundance,
-           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1)) + facet_wrap( ~Group, scales = 'free')
+           fill = Genus,)) +  geom_bar(stat = "identity", position = "fill") +  scale_fill_cvi_d("cvi_siwa") + theme(axis.text.x = element_text(angle = 60, hjust = 1), text = element_text(size=15)) + facet_wrap( ~Group, scales = 'free')
 
 ```
 
 
-Ganoderma vs No Ganoderma 
+Significant features when comparing Ganoderma-treated animals and controls.
 ===================================== 
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+Differential abundance analysis is an important process for identifying bacteria that are statistically higher or lower in one group compared with others.  Linear discriminant analysis (LDA) is a statistical method that identifies sequences that account for the most variation between groups.
 
+<!-- Row --> 
+-------------------------------------
 
 ```{r , echo=FALSE, include=TRUE, fig.width=12, fig.height=4}
+bacterias <- c("Lactobacillus", "Megasphaera","Prevotella","Turicibacter","Peptostreptococcaceae-Unknown")
 df <- data.frame(
   class = c("Ganoderma","Ganoderma","Ganoderma", "No-Ganoderma","No-Ganoderma"),
-  names=c("bact1", "bact2","bact3","bact4","bact5"),
-  len = c(4, 3.2, 2.2, 2.5, 3)
+  names=bacterias,
+  len = c(4, 2.2, 2, 2.5, 3)
   )
 df$class <- as.factor(df$class)
+df$names <-factor(df$names,levels = c("Lactobacillus", "Megasphaera","Prevotella","Peptostreptococcaceae-Unknown","Turicibacter"))
+
 pl <- ggplot(df, aes(x=names, y = len, fill = class)) +
   geom_bar(stat = "identity") + xlab("")+ ylab("LDA Score")+
-  coord_flip() + scale_fill_cvi_d("alpha_colors")
+  coord_flip() + scale_fill_cvi_d("alpha_colors") + theme(text = element_text(size=15)) 
 pl
 ```
 
 <!-- Row --> 
 -------------------------------------
 
-```{r , echo=FALSE, include=FALSE, warning=FALSE, fig.width=8, fig.height=2}
-fig1 <- plot_ly(
-  domain = list(x = c(0, 0.45), y = c(0.5, 1)),
-  value = 60,
-  type = "indicator",
-  #title = list(text = "No Ganoderma"), 
-  mode = "gauge",gauge = list(
-    axis =list(range = list(NULL, 100)),
-    bar = list(color = "#f9b870"))) 
-fig1 <- fig1 %>% layout(margin = list(l=20,r=30))
-
-fig2 <- plot_ly(
-  domain = list(x = c(0.55, 1), y = c(0.5, 1)),
-  value = 10,
-  type = "indicator",
-  mode = "gauge", 
-  #title = list(text = "Ganoderma"), 
-  gauge = list(
-    axis =list(range = list(NULL, 100)),
-    bar = list(color = "#f9b870"))) 
-fig2 <- fig2 %>% layout(margin = list(l=20,r=30))
-
-fig3 <- plot_ly(
-  domain = list(x = c(0, 0.45), y = c(0, 0.5)),
-  value = 20,
-  type = "indicator",
-  #title = list(text = "No Ganoderma"), 
-  mode = "gauge",gauge = list(
-    axis =list(range = list(NULL, 100)),
-    bar = list(color = "#5cb08e"))) 
-fig3 <- fig3 %>% layout(margin = list(l=20,r=30))
-
-fig4 <- plot_ly(
-  domain = list(x = c(0.55, 1), y = c(0, 0.5)),
-  value = 70,
-  type = "indicator",
-  mode = "gauge", 
-  #title = list(text = "Ganoderma"),
-  gauge = list(
-    axis =list(range = list(NULL, 100)),
-    bar = list(color = "#5cb08e"))) 
-
-fig4 <- fig4 %>% layout(margin = list(l=20,r=30)) 
-
-fig <- subplot(fig1, fig2, fig3, fig4, nrows=2, margin = 5)
-
-annotations = list( 
-  list( 
-    x = 0.2,  
-    y = 0.2,  
-    text = "No Ganoderma",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE 
-  ), 
-  list( 
-    x = 0.2,  
-    y = 0.7,  
-    text = "No Ganoderma",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE 
-  ),
-  list( 
-    x = 0.75,  
-    y = 0.2,  
-    text = "Ganoderma",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE 
-  ),
-  list( 
-    x = 0.75,  
-    y = 0.7,  
-    text = "Ganoderma",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE 
-  ), 
-  list( 
-    x = 0.5,  
-    y = 0.9,  
-    text = "Bacteria 1",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE ,font = list(size = 24)
-  ),
-  list( 
-    x = 0.5,  
-    y = 0.4,  
-    text = "Bacteria 2",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE ,font = list(size = 24)
-  )
-  )
-
-fig <- fig %>%layout(annotations = annotations) 
-fig
-
-plotly::export(p = fig,
-               file = "gauges.png")
-
-```
-
 ![gauges](gauges.png){#id .class width=90% height=50%}
 
+SIWA: Additional analyses
+===================================== 
 
-```{r , echo=FALSE, include=FALSE}
-# library(rmarkdown)
-# rmarkdown::render("/Users/dvarelat/Documents/SIWA/Pets_flex/pets_public.Rmd", output_format = "pdf_document")
-# install.packages('tinytex')
-# tinytex::install_tinytex()
-#webshot::install_phantomjs()
+Though not relevant to the effects of Ganoderma on the microbiome, there are many other analyses that can add value to studies of gut health and the microbiome.  Some are standard in metagenomics, while we have developed others in response to our needs and those of our customers.
+
+
+### Diversity and richness in the microbial community
+
+There are many dietary and environmental variables that can affect the diversity and stability of the microbiome, predisposing the community to dysbiosis and overgrowth of opportunistic bacteria.  Alpha diversity metrics summarize the structure of an ecological community with respect to its richness (number of taxonomic groups), evenness (distribution of abundances of the groups), or both in the case of the Shannon Index.
+
+
+```{r, echo=FALSE, warning=FALSE, out.height="80%", out.width = "90%",  fig.align="center"}
+plot_alpha <- readRDS(file=paste0(input_dir, "plot_div.rds"))
+
+plot_alpha + scale_color_cvi_d("alpha_colors")
 ```
 
+
+\newpage
+
+
+
+<!-- Row --> 
+-------------------------------------
+
+### Correlating experimental outcomes with traits of interest
+
+A critical component of a good research study is the ability to relate experimental outcomes with phenotypic changes we hope to see.  Fecal scores, body condition, blood parameters, or behavior, just to name a few.  SIWA places a strong emphasis on relating microbial patterns and specific species to traits of interest.  Robust correlations between study features and outcomes that matter to animals and pet owners are the foundation of our platform.  
+
+
+```{r, echo=FALSE, out.height="20%", out.width = "90%", fig.align="center"}
+df_perf <- read.csv(file=paste0(input_dir, "performance.csv"))
+ps <- ggplot(df_perf, aes(x=clr_t, y=FCRbefore, color=I("#606060"))) + 
+  geom_point(show.legend = FALSE) + geom_smooth(method=lm, se=TRUE, color="#075b44") + 
+  xlab("Transformed abundance of Lactobacillus spp") + ylab("IL1B expression") + 
+  theme_light() + theme(legend.position = "none")
+ps
+```
+
+### Benchmarking SIWA Microbial Health Score 1 against the broader community
+
+```{r plot1, warning=FALSE, echo=FALSE, out.height="35%", fig.align="center"}
+cs = list(list(0, "#03343a"), list(1, "#f7e76d"))
+df_c$quant <- gtools::quantcut(abs(df_c$ratio1LOG), 10, label = FALSE)
+p <- plot_ly(data=df_c) %>%
+  add_trace(x = ~ratio1LOG, y= 0.5, type = "box", boxpoints = "none",showlegend=FALSE,
+            orientation='h', fillcolor="#035060", 
+            marker = list(symbol = "square-dot", color="#035060"),
+            line = list(color = "#4e8e74",width = 2), 
+            hoverinfo='none') %>%
+  add_trace(type="scatter", mode="markers",  hoverinfo='none',showlegend=FALSE,
+            x=~ratio1LOG, y=rnorm(nrow(df_c), 0, 0.05), 
+            marker=list(color = ~quant, size=10, 
+                        autocolorscale=F, colorscale = cs)) %>%
+  add_trace(name="Group A",type="scatter", mode="markers",
+            x=0, y=0.55, textposition = "bottom center",hoverinfo='none',
+            marker=list(color = "#017fb1", size=15, symbol="triangle-down")) %>%
+  #add_annotations(x=0,y=0.6, text="Group A") %>% 
+  add_trace(name="Group B",type="scatter", mode="markers+text",
+            x=3, y=0.55, 
+            marker=list(color = "#e5c217", size=15, symbol="triangle-down")) %>% 
+  # add_annotations(x=3,y=0.6, text="Group B", ax = 50, ay = -40 ) %>% 
+  layout(xaxis = list(title = 'SIWA Microbial Health Score 1',
+                      showgrid = F,
+                      zerolinecolor = '#ffff'), 
+         legend =  list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     x = 0.5, y = 1))
+p
+
+```
+
+
+### Mapping SIWA Microbial Health Score 1 against the Bristol Stool Scale
+
+```{r, include=TRUE, warning=FALSE, echo=FALSE}
+plot_popo <- readRDS(file=paste0(input_dir, "plot_ploop.rds"))
+
+
+plot_popo <- plot_popo + scale_color_cvi_d("bad_good_stool") +
+  xlab("Stool Type") + ylab("SIWA Microbial Health Score 1") + theme_light()
+
+ggplotly(plot_popo, height=400)
+
+```
 

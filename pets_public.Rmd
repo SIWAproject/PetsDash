@@ -311,64 +311,61 @@ pl <- ggplot(df, aes(x=names, y = len, fill = class)) +
 ggplotly(pl,  height = 500)
 ```
 
-Row {data-height=50}
+Row {data-height=20}
 -----------------------------------------------------------------------
 
-Row {data-height=600}
+Row {data-height=200}
 -----------------------------------------------------------------------
 
-### Relative abundance without and with Ganoderma
+### {data-width=300}
+
+**Lactobacillus** are well documented commensal bacteria in many animal species, including dogs.  Though they vary in function and preferred growth habitat, there are over 200 species that are widely used in fermented food preservation or for promoting gut health. Their habit of producing lactic acid contributes to both their food preservation and gut health abilities.  Species such as L acidophilus, casei, salivarius, and bulgaricus are common components of canine probiotics.
+
+### {data-width=400}
+```{r, echo=FALSE}
+knitr::include_graphics("gauges1_lact.jpg")
+#![](gauges1_lact.jpg){#id .class width=90% height=80%}
+```
+
+Row {data-height=200}
+-----------------------------------------------------------------------
+
+### {data-width=300}
+
+**Turicibacter** is a genus of bacteria frequently found in the gut microbiome of dogs. Turicibacter species produce short chain fatty acids that support gut health, and some studies suggest they are reduced in cases of IBD and acute diarrhea.  More research is needed to understand the specific role of Turicibacter in the health and function of the gut microbiome.
+
+### {data-width=400}
+
+```{r, echo=FALSE}
+knitr::include_graphics("gauges2_tur.jpg")
+#![](gauges2_tur.jpg){#id .class width=90% height=80%}
+```
+
 
 ```{r , echo=FALSE, include=FALSE, warning=FALSE}
-
 fig1 <- plot_ly(
-  domain = list(x = c(0, 0.45), y = c(0.5, 1)),
+  domain = list(x = c(0, 0.45), y = c(0, 1)),
   value = 10,
   type = "indicator",
-  #title = list(text = "No Ganoderma"), 
   mode = "gauge",gauge = list(
     axis =list(range = list(NULL, 100)),
-    bar = list(color = "#f9b870"))) 
+    bar = list(color = "#5cb08e"))) 
 fig1 <- fig1 %>% layout(margin = list(l=20,r=30))
 
 fig2 <- plot_ly(
-  domain = list(x = c(0.55, 1), y = c(0.5, 1)),
+  domain = list(x = c(0.55, 1), y = c(0, 1)),
   value = 40,
   type = "indicator",
   mode = "gauge", 
-  #title = list(text = "Ganoderma"), 
   gauge = list(
     axis =list(range = list(NULL, 100)),
-    bar = list(color = "#f9b870"))) 
+    bar = list(color = "#5cb08e"))) 
 fig2 <- fig2 %>% layout(margin = list(l=20,r=30))
-
-fig3 <- plot_ly(
-  domain = list(x = c(0, 0.45), y = c(0, 0.5)),
-  value = 15,
-  type = "indicator",
-  #title = list(text = "No Ganoderma"), 
-  mode = "gauge",gauge = list(
-    axis =list(range = list(NULL, 100)),
-    bar = list(color = "#5cb08e"))) 
-fig3 <- fig3 %>% layout(margin = list(l=20,r=30))
-
-fig4 <- plot_ly(
-  domain = list(x = c(0.55, 1), y = c(0, 0.5)),
-  value = 2,
-  type = "indicator",
-  mode = "gauge", 
-  #title = list(text = "Ganoderma"),
-  gauge = list(
-    axis =list(range = list(NULL, 100)),
-    bar = list(color = "#5cb08e"))) 
-
-fig4 <- fig4 %>% layout(margin = list(l=20,r=30)) 
-
-fig <- subplot(fig1, fig2, fig3, fig4, nrows=2, margin = 5)
+fig <- subplot(fig1, fig2, nrows=1, margin = 5)
 annotations = list( 
   list( 
     x = 0.2,  
-    y = 0.2,  
+    y = 0.5,  
     text = "No Ganoderma",  
     xref = "paper",  
     yref = "paper",  
@@ -377,18 +374,8 @@ annotations = list(
     showarrow = FALSE 
   ), 
   list( 
-    x = 0.2,  
-    y = 0.7,  
-    text = "No Ganoderma",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE 
-  ),
-  list( 
-    x = 0.75,  
-    y = 0.2,  
+    x = 0.77,  
+    y = 0.5,  
     text = "Ganoderma",  
     xref = "paper",  
     yref = "paper",  
@@ -396,29 +383,71 @@ annotations = list(
     yanchor = "bottom",  
     showarrow = FALSE 
   ),
-  list( 
-    x = 0.75,  
-    y = 0.7,  
-    text = "Ganoderma",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE 
-  ), 
   list( 
     x = 0.5,  
-    y = 0.9,  
+    y = 0.8,  
     text = "Lactobacillus",  
     xref = "paper",  
     yref = "paper",  
     xanchor = "center",  
     yanchor = "bottom",  
     showarrow = FALSE ,font = list(size = 18)
+  )
+  )
+fig <- fig %>%layout(annotations = annotations) 
+fig
+plotly::export(p = fig,
+               file = "gauges1.png")
+
+### otros dos
+fig3 <- plot_ly(
+  domain = list(x = c(0, 0.45), y = c(0, 1)),
+  value = 15,
+  type = "indicator",
+  #title = list(text = "No Ganoderma"), 
+  mode = "gauge",gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "#f9b870"))) 
+fig3 <- fig3 %>% layout(margin = list(l=20,r=30))
+
+fig4 <- plot_ly(
+  domain = list(x = c(0.55, 1), y = c(0, 1)),
+  value = 2,
+  type = "indicator",
+  mode = "gauge", 
+  #title = list(text = "Ganoderma"),
+  gauge = list(
+    axis =list(range = list(NULL, 100)),
+    bar = list(color = "#f9b870"))) 
+
+fig4 <- fig4 %>% layout(margin = list(l=20,r=30)) 
+
+fig <- subplot(fig3, fig4, nrows=1, margin = 0)
+
+annotations = list( 
+  list( 
+    x = 0.2,  
+    y = 0.5,  
+    text = "No Ganoderma",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE 
+  ), 
+  list( 
+    x = 0.77,  
+    y = 0.5,  
+    text = "Ganoderma",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE 
   ),
   list( 
     x = 0.5,  
-    y = 0.4,  
+    y = 0.8,  
     text = "Turicibacter",  
     xref = "paper",  
     yref = "paper",  
@@ -428,11 +457,16 @@ annotations = list(
   )
   )
 
-fig <- fig %>%layout(annotations = annotations) 
+fig <- fig %>%layout(annotations = annotations, autosize=TRUE) 
 fig
+plotly::export(p = fig,
+               file = "gauges2.png")
+
+###------
+
 ```
 
-![](gauges.png){#id .class width=90% height=40%}
+
 
 Additional analyses {data-icon="fa-table"}
 ===================================== 
